@@ -12,10 +12,6 @@ FIND = {'https://tnc.undostres.com.mx/'}
 
 SKIP = ['mailto','google','#','care@','huawei','medium.com','twitter','apple','itune','facebook','whatsapp','https://undostres.com.mx/index.php?']
 
-# BASE = 'https://github.com/'
-# FIND = {'/npm/cli'}
-# to do: none wale links
-
 def getRefs(url):
     time.sleep(0.1)
     html = requests.get(url)
