@@ -73,29 +73,28 @@ class node:
         unique = set()
         for ref in refs:
             ref = ref.get("href")
-            flag = 1
             if ref is None:  # or ref.find('undostres') == -1:
                 siteMap.reports.write("NONE\t" + self.url + "\n")
                 print("[FLAGGED]:  " + str(ref))
                 continue
 
-            ref = processURL(ref, siteMap)
+            for i in params.SKIP:
+                if ref.find(i) != -1:
+                    ref = ""
+                    print("[FLAGGED]:  " + ref)
+                    break
 
             if len(ref) == 0 or ref in unique:
                 continue
+            
+            ref = processURL(ref, siteMap)
 
             if ref in params.FIND:
                 print("milgaya   " + ref + "    " + self.url + "\n")
                 siteMap.reports.write("[MILGAYA]\t" + ref + "\t" + self.url + "\n")
                 sys.exit()
 
-            for i in params.SKIP:
-                if ref.find(i) != -1:
-                    flag = 0
-                    print("[FLAGGED]:  " + ref)
-                    break
-
-            if flag == 1 and ref not in siteMap.VISITED and ref not in unique:
+            if ref not in siteMap.VISITED and ref not in unique:
                 unique.add(ref)
                 print("[NEW REF FOUND]:  " + ref)
                 checkStatusCode(ref, self.url, siteMap)
