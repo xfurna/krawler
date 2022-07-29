@@ -8,7 +8,9 @@ def main(siteMap):
     fNode = node(params.BASE, siteMap)
     while len(siteMap.QUEUE) != 0:
         nextUrl = siteMap.QUEUE.pop(0)
-        print("")
+        if len(nextUrl) == 0 or nextUrl in siteMap.VISITED:
+            continue
+        print("\n")
         print("[EXPLORING INTO]  " + nextUrl)
         nextNode = node(nextUrl, siteMap)
     siteMap.reports.close()
