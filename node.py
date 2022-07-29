@@ -6,22 +6,23 @@ import time
 import sys
 import params
 
+
 def processURL(url, siteMap):
-    index = url.find('https')
+    index = url.find("https")
 
     if index != -1:
         url = url[index:]
 
-    if url.find('https/') != -1:
-        url  = url.replace('https/', 'https://')
-    
-    index = url.find('http')
-    
+    if url.find("https/") != -1:
+        url = url.replace("https/", "https://")
+
+    index = url.find("http")
+
     if index != -1:
         url = url[index:]
 
-    if url.find('http/') != -1:
-        url  = url.replace('http/', 'http://')
+    if url.find("http/") != -1:
+        url = url.replace("http/", "http://")
 
     if not validators.url(url):
         print("[LINK IS NOT VALID]:  " + url)
@@ -32,48 +33,51 @@ def processURL(url, siteMap):
         return ""
     return url
 
+
 def checkStatusCode(ref, parentUrl, siteMap):
     html = requests.get(ref, headers=params.headers)
-    html.encoding = 'utf-8'
+    html.encoding = "utf-8"
     while html.status_code != 200 and html.status_code == 204:
         print("waiting for response..." + str(html))
         time.sleep(5)
-    
+
     if html.status_code >= 400:
-        siteMap.reports.write(str(html.status_code) + "\t" + ref + "\t" + parentUrl + "\n")
+        siteMap.reports.write(
+            str(html.status_code) + "\t" + ref + "\t" + parentUrl + "\n"
+        )
         siteMap.VISITED.add(ref)
 
     else:
         siteMap.QUEUE.append(ref)
 
 
-class node():
+class node:
     url = "undostres.com.mx"
 
     def __init__(self, url, siteMap):
         url = str(url)
         self.url = url
         self.getUnVisited(siteMap)
-    
+
     def getUnVisited(self, siteMap):
         if len(self.url) == 0:
             return
         siteMap.VISITED.add(self.url)
         html = requests.get(self.url, headers=params.headers)
-        html.encoding = 'utf-8'
+        html.encoding = "utf-8"
         while html.status_code != 200 and html.status_code == 204:
             print("waiting for response..." + str(html))
             time.sleep(5)
         print(html.status_code)
 
         if html.status_code < 400:
-            sp = BeautifulSoup(html.text, 'html.parser')
-            refs = sp.find_all('a')
+            sp = BeautifulSoup(html.text, "html.parser")
+            refs = sp.find_all("a")
             unique = set()
             for ref in refs:
-                ref = ref.get('href')
+                ref = ref.get("href")
                 flag = 1
-                if ref is None:# or ref.find('undostres') == -1:
+                if ref is None:  # or ref.find('undostres') == -1:
                     print("[FLAGGED]:  " + str(ref))
                     continue
 
@@ -97,4 +101,3 @@ class node():
                     unique.add(ref)
                     print("[NEW REF FOUND]:  " + ref)
                     checkStatusCode(ref, self.url, siteMap)
-                    
