@@ -1,6 +1,26 @@
 # Krawler
 A web crawling agent implemented to browse the seed in _breath first search_ fashion; while skipping over the selected, negligible domains & subdomains.
 
+## Installation
+
+### Install dependencies
+```
+$ pip3 install pipenv
+$ pipenv install
+```
+
+### Activate the virtual environment
+```
+$ pipenv shell
+```
+
+## Usage
+Edit `params.py` to set your seed and negligible domains.
+
+```
+$ python3 krawler
+```
+
 ## Dependecy Graph
 ```
 beautifulsoup4==4.11.1
