@@ -28,9 +28,9 @@ def processURL(url, siteMap):
         url = url.replace("http/", "http://")
 
     if not validators.url(url):
-        print("[LINK IS NOT VALID]:\t" + url)
+        # print("[LINK IS NOT VALID]:\t" + url)
         url = params.BASE + url
-        print("[URL fixed]:\t" + url)
+        # print("[URL fixed]:\t" + url)
 
     return url
 
@@ -43,7 +43,7 @@ def checkStatusCode(ref, parentUrl, siteMap):
 
     if html.status_code > 400:
         siteMap.reports.write(
-            str(html.status_code) + "\t" + ref + "\t" + parentUrl + "\n"
+            str(html.status_code) + "\t" + html.url + "\t" + parentUrl + "\n"
         )
         siteMap.VISITED.add(html.url)
         siteMap.VISITED.add(ref)
@@ -67,6 +67,11 @@ class node:
             time.sleep(5)
         print(html.status_code)
 
+        if self.url != html.url:
+            for i in params.SKIP:
+                if html.url.find(i) != -1:
+                    print("[ABORTING]:\t" + html.url)
+
         if html.status_code > 400:
             return
 
@@ -76,13 +81,11 @@ class node:
         for ref in refs:
             ref = ref.get("href")
             if ref is None:  # or ref.find('undostres') == -1:
-                siteMap.reports.write("NONE\t" + self.url + "\n")
-                print("[FLAGGED]:  " + str(ref))
                 continue
 
             for i in params.SKIP:
                 if ref.find(i) != -1:
-                    print("[FLAGGED]:  " + ref)
+                    print("[FLAGGED]:\t" + ref)
                     ref = ""
                     break
 
@@ -92,11 +95,11 @@ class node:
             ref = processURL(ref, siteMap)
 
             if ref in params.FIND:
-                print("milgaya   " + ref + "    " + self.url + "\n")
-                siteMap.reports.write("[MILGAYA]\t" + ref + "\t" + self.url + "\n")
+                print("milgaya   " + ref + "    " + html.url + "\n")
+                siteMap.reports.write("[MILGAYA]\t" + ref + "\t" + html.url + "\n")
                 sys.exit()
 
             if ref not in siteMap.VISITED and ref not in unique:
                 unique.add(ref)
                 print("[NEW REF FOUND]:  " + ref)
-                checkStatusCode(ref, self.url, siteMap)
+                checkStatusCode(ref, html.url, siteMap)
