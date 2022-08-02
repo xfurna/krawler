@@ -5,9 +5,12 @@ import validators
 import time
 import sys
 import params
+from urllib.parse import unquote
 
 
 def processURL(url, siteMap):
+    url = unquote(url)
+    
     index = url.find("https")
 
     if index != -1:
@@ -29,8 +32,6 @@ def processURL(url, siteMap):
         url = params.BASE + url
         print("[URL fixed]:\t" + url)
 
-    if url in siteMap.VISITED:
-        return ""
     return url
 
 
@@ -44,10 +45,11 @@ def checkStatusCode(ref, parentUrl, siteMap):
         siteMap.reports.write(
             str(html.status_code) + "\t" + ref + "\t" + parentUrl + "\n"
         )
+        siteMap.VISITED.add(html.url)
         siteMap.VISITED.add(ref)
 
     else:
-        siteMap.QUEUE.append(ref)
+        siteMap.QUEUE.append(html.url)
 
 
 class node:
@@ -68,7 +70,7 @@ class node:
         if html.status_code > 400:
             return
 
-        sp = BeautifulSoup(html.text, "html.parser")
+        sp = BeautifulSoup(html.text, "lxml")
         refs = sp.find_all("a")
         unique = set()
         for ref in refs:
@@ -80,8 +82,8 @@ class node:
 
             for i in params.SKIP:
                 if ref.find(i) != -1:
-                    ref = ""
                     print("[FLAGGED]:  " + ref)
+                    ref = ""
                     break
 
             if len(ref) == 0 or ref in unique:
